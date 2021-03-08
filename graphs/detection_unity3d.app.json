@@ -1,22 +1,10 @@
 {
-    "name": "object_detection",
-    "modules": [
-        "sensors:v4l2_camera"
-    ],
+    "name": "object_detection_unity3d",
     "graph": {
         "nodes": [
             {
-                "name": "camera",
-                "components": [
-                    {
-                        "name": "ledger",
-                        "type": "isaac::alice::MessageLedger"
-                    },
-                    {
-                        "name": "v4l2_camera",
-                        "type": "isaac::V4L2Camera"
-                    }
-                ]
+                "name": "simulation",
+                "subgraph": "packages/navsim/apps/navsim_training.subgraph.json"
             },
             {
                 "name": "object_detector",
@@ -33,11 +21,11 @@
         ],
         "edges": [
             {
-                "source": "camera/v4l2_camera/frame",
+                "source": "simulation.interface/output/color",
                 "target": "edge_detector.subgraph/interface/image"
             },
             {
-                "source": "camera/v4l2_camera/frame",
+                "source": "simulation.interface/output/color",
                 "target": "object_detector.subgraph/interface/image"
             },
             {
@@ -49,19 +37,9 @@
                 "target": "viewers.subgraph/interface/detections"
             },
             {
-                "source": "camera/v4l2_camera/frame",
+                "source": "simulation.interface/output/color",
                 "target": "viewers.subgraph/interface/input_image"
             }
         ]
-    },
-    "config": {
-        "camera": {
-            "v4l2_camera": {
-                "device_id": 2,
-                "rows": 480,
-                "cols": 640,
-                "rate_hz": 30
-            }
-        }
     }
 }

@@ -21,6 +21,16 @@ isaac_subgraph(
     visibility = ["//visibility:public"],
 )
 
+isaac_subgraph(
+    name = "viewers_subgraph",
+    modules = [
+        "sight",
+        "viewers"
+    ],
+    subgraph = "graphs/subgraphs/viewers.subgraph.json",
+    visibility = ["//visibility:public"],
+)
+
 isaac_py_app(
     name = "object_detection",
     srcs = glob(["codelets/*"]) + ["main.py"],
@@ -28,12 +38,15 @@ isaac_py_app(
     data = [
         "object_detection_subgraph",
         "edge_detection_subgraph",
+        "viewers_subgraph",
+        "graphs/detection_unity3d.app.json",
         "graphs/detection.app.json",
         "//packages/navsim/apps:navsim_training_subgraph",
     ],
     modules = [
         "sight",
         "viewers",
+        "sensors:v4l2_camera"
     ],
     deps = [
         "//packages/pyalice",
