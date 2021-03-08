@@ -1,0 +1,42 @@
+{
+    "graph": {
+        "nodes": [
+            {
+                "name": "subgraph",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name":  "interface",
+                        "type": "isaac::alice::Subgraph"
+                    }
+                ]
+            },
+            {
+                "name": "subgraph.edge_detector",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "detector",
+                        "type": "isaac::alice::PyCodelet"
+                    }
+                ]
+            }
+        ],
+        "edges": [
+            {
+                "source": "subgraph/interface/image",
+                "target": "subgraph.edge_detector/detector/input_image"
+            },
+            {
+                "source": "subgraph.edge_detector/detector/output_image",
+                "target": "subgraph/interface/edges"
+            }
+        ]
+    }
+}

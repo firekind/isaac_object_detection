@@ -1,0 +1,150 @@
+{
+    "modules": [
+        "detect_net",
+        "ml",
+        "perception"
+    ],
+    "graph": {
+        "nodes": [
+            {
+                "name": "subgraph",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "interface",
+                        "type": "isaac::alice::Subgraph"
+                    }
+                ]
+            },
+            {
+                "name": "encoder",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "encoder.cuda",
+                        "type": "isaac::ml::ColorCameraEncoderCuda"
+                    }
+                ]
+            },
+            {
+                "name": "inference",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "tensorRT",
+                        "type": "isaac::ml::TensorRTInference"
+                    }
+                ]
+            },
+            {
+                "name": "decoder",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "detections.decoder",
+                        "type": "isaac::detect_net::DetectNetDecoder"
+                    }
+                ]
+            }
+        ],
+        "edges": [
+            {
+                "source": "subgraph/interface/image",
+                "target": "encoder/encoder.cuda/rgb_image"
+            },
+            {
+                "source": "encoder/encoder.cuda/tensor",
+                "target": "inference/tensorRT/image"
+            },
+            {
+                "source": "inference/tensorRT/bounding_boxes_tensor",
+                "target": "decoder/detections.decoder/bounding_boxes_tensor"
+            },
+            {
+                "source": "inference/tensorRT/confidence_tensor",
+                "target": "decoder/detections.decoder/confidence_tensor"
+            },
+            {
+                "source": "decoder/detections.decoder/detections",
+                "target": "subgraph/interface/detections"
+            }
+        ]
+    },
+    "config": {
+        "encoder": {
+            "encoder.cuda": {
+                "rows": 368,
+                "cols": 640,
+                "pixel_normalization_mode": "Unit",
+                "tensor_index_order": "201"
+            }
+        },
+        "inference": {
+            "tensorRT": {
+                "model_file_path": "external/industrial_dolly_pose_estimation_cnn_model/resnet18_detector_industrial_dolly_bldgK.etlt",
+                "etlt_password": "test_pilot_2020",
+                "max_workspace_size": 67108864,
+                "max_batch_size": 1,
+                "inference_mode": "Float16",
+                "force_engine_update": false,
+                "input_tensor_info": [
+                    {
+                        "operation_name": "input_1",
+                        "channel": "image",
+                        "dims": [
+                            3,
+                            368,
+                            640
+                        ],
+                        "uff_input_order": "channels_last"
+                    }
+                ],
+                "output_tensor_info": [
+                    {
+                        "operation_name": "output_bbox/BiasAdd",
+                        "channel": "bounding_boxes_tensor",
+                        "dims": [
+                            4,
+                            23,
+                            40
+                        ]
+                    },
+                    {
+                        "operation_name": "output_cov/Sigmoid",
+                        "channel": "confidence_tensor",
+                        "dims": [
+                            1,
+                            23,
+                            40
+                        ]
+                    }
+                ]
+            }
+        },
+        "decoder": {
+            "detections.decoder": {
+                "labels": [
+                    "dolly"
+                ],
+                "non_maximum_suppression_threshold": 0.3,
+                "confidence_threshold": 0.35,
+                "output_scale": [
+                    720,
+                    1280
+                ]
+            }
+        }
+    }
+}

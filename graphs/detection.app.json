@@ -1,0 +1,151 @@
+{
+    "name": "object_detection",
+    "modules": [
+        "sight",
+        "viewers"
+    ],
+    "graph": {
+        "nodes": [
+            {
+                "name": "simulation",
+                "subgraph": "packages/navsim/apps/navsim_training.subgraph.json"
+            },
+            {
+                "name": "object_detector",
+                "subgraph": "apps/object_detection/graphs/subgraphs/object_detection.subgraph.json"
+            },
+            {
+                "name": "edge_detector",
+                "subgraph": "apps/object_detection/graphs/subgraphs/edge_detection.subgraph.json"
+            },
+            {
+                "name": "edge_detection_viewer",
+                "components": [
+                    {
+                        "name": "ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "viewer",
+                        "type": "isaac::viewers::ImageViewer"
+                    }
+                ]
+            },
+            {
+                "name": "object_detection_viewer",
+                "components": [
+                    {
+                        "name": "isaac.alice.MessageLedger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "isaac.viewers.DetectionsViewer",
+                        "type": "isaac::viewers::DetectionsViewer"
+                    }
+                ]
+            },
+            {
+                "name": "scene_viewer",
+                "components": [
+                    {
+                        "name": "message_ledger",
+                        "type": "isaac::alice::MessageLedger"
+                    },
+                    {
+                        "name": "viewer",
+                        "type": "isaac::viewers::ImageViewer"
+                    }
+                ]
+            },
+            {
+                "name": "sight_widgets",
+                "components": [
+                    {
+                        "type": "isaac::sight::SightWidget",
+                        "name": "Detections"
+                    }
+                ]
+            }
+        ],
+        "edges": [
+            {
+                "source": "simulation.interface/output/color",
+                "target": "edge_detector.subgraph/interface/image"
+            },
+            {
+                "source": "simulation.interface/output/color",
+                "target": "object_detector.subgraph/interface/image"
+            },
+            {
+                "source": "edge_detector.subgraph/interface/edges",
+                "target": "edge_detection_viewer/viewer/image"
+            },
+            {
+                "source": "object_detector.subgraph/interface/detections",
+                "target": "object_detection_viewer/isaac.viewers.DetectionsViewer/detections"
+            },
+            {
+                "source": "simulation.interface/output/color",
+                "target": "scene_viewer/viewer/image"
+            }
+        ]
+    },
+    "config": {
+        "scene_viewer": {
+            "viewer": {
+                "camera_name": "camera"
+            }
+        },
+        "edge_detection_viewer": {
+            "viewer": {
+                "target_fps": 20
+            }
+        },
+        "websight": {
+            "WebsightServer": {
+                "port": 3000,
+                "ui_config": {
+                    "windows": {
+                        "Edge Detection": {
+                            "renderer": "2d",
+                            "dims": {
+                                "width": 640,
+                                "height": 480
+                            },
+                            "channels": [
+                                {
+                                    "name": "object_detection/edge_detection_viewer/viewer/image"
+                                }
+                            ]
+                        },
+                        "Scene": {
+                            "renderer": "2d",
+                            "dims": {
+                                "width": 640,
+                                "height": 480
+                            },
+                            "channels": [
+                                {
+                                    "name": "object_detection/scene_viewer/viewer/image"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "sight_widgets": {
+            "Detections": {
+                "type": "2d",
+                "channels": [
+                    {
+                        "name": "$(fullname scene_viewer/viewer/image)"
+                    },
+                    {
+                        "name": "$(fullname object_detection_viewer/isaac.viewers.DetectionsViewer/detections)"
+                    }
+                ]
+            }
+        }
+    }
+}
