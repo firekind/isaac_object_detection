@@ -13,9 +13,9 @@ def main():
     args = parser.parse_args()
 
     if args.simulate:
-        app_file = "apps/object_detection/graphs/detection_unity3d.app.json"
+        app_file = "apps/isaac_object_detection/graphs/detection_unity3d.app.json"
     else:
-        app_file = "apps/object_detection/graphs/detection.app.json"
+        app_file = "apps/isaac_object_detection/graphs/detection.app.json"
 
     app = Application(app_filename=app_file)
     app.nodes["edge_detector.subgraph.edge_detector"].add(EdgeDetector, "detector")

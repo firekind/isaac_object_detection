@@ -20,15 +20,15 @@
             },
             {
                 "name": "object_detector",
-                "subgraph": "apps/object_detection/graphs/subgraphs/object_detection.subgraph.json"
+                "subgraph": "apps/isaac_object_detection/graphs/subgraphs/object_detection.subgraph.json"
             },
             {
                 "name": "edge_detector",
-                "subgraph": "apps/object_detection/graphs/subgraphs/edge_detection.subgraph.json"
+                "subgraph": "apps/isaac_object_detection/graphs/subgraphs/edge_detection.subgraph.json"
             },
             {
                 "name": "viewers",
-                "subgraph": "apps/object_detection/graphs/subgraphs/viewers.subgraph.json"
+                "subgraph": "apps/isaac_object_detection/graphs/subgraphs/viewers.subgraph.json"
             }
         ],
         "edges": [
